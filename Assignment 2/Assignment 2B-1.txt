@@ -1,0 +1,34 @@
+#include<stdlib.h>
+#include<stdio.h>
+#include<sys/wait.h>
+#include<unistd.h>
+
+int binarysearch(int a[],int n,int x){
+   int l=0;
+   int h=n;
+   while(l<=h){
+      int mid=(l+h)/2;
+      if(a[mid]==x){
+         return mid;
+      }
+      else if(a[mid]>x) h=mid-1;
+      else l=mid+1;
+   }
+   return 0;
+}
+int main(int argc,char *argv[]){
+    int n=argc-2;
+    int a[n];
+    for(int i=1;i<argc-1;i++){
+      a[i-1]=atoi(argv[i]);
+    }
+    int x=atoi(argv[argc-1]);
+    int y=binarysearch(a,n,x);
+    if(y){
+       printf("\n ELEMENT FOUND AT INDEX:%d",y);
+       printf("\n EXECV TASK COMPLETED");
+    }
+    else{
+       printf("\n ELEMENT NOT THERE ");
+    }
+}

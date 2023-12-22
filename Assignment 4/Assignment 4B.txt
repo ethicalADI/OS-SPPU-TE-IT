@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+#define BUFFER_SIZE 10
+int buff[BUFFER_SIZE];
+pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER; // Initializing mutex
+
+void *producer(void *arg) {
+    int i = 0, n;
+    while (1) {
+        pthread_mutex_lock(&m);
+        n = rand() % 10; // Using rand() for generating random numbers
+        buff[i] = n;
+        printf("%d Element is added at %d Location\n", n, i);
+        i = (i + 1) % BUFFER_SIZE;
+        pthread_mutex_unlock(&m);
+        sleep(2);
+    }
+    pthread_exit(NULL);
+}
+
+void *consumer(void *arg) {
+    int i=0,n;
+    while (1) {
+        pthread_mutex_lock(&m);
+        n = buff[i];
+        printf("%d Element is extracted at %d Location\n", n, i);
+        i = (i + 1) % BUFFER_SIZE;
+        pthread_mutex_unlock(&m);
+        sleep(2);
+    }
+    pthread_exit(NULL);
+}
+
+int main() {
+    pthread_t pt, ct;
+    srand(time(NULL)); // Seed for random number generation
+
+    pthread_create(&pt, NULL, producer, NULL);
+    pthread_create(&ct, NULL, consumer, NULL);
+
+    pthread_join(pt, NULL);
+    pthread_join(ct, NULL);
+
+    pthread_mutex_destroy(&m); // Destroying the mutex
+
+    return 0;
+}

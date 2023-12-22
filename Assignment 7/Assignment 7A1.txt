@@ -1,0 +1,61 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#define FIFO1 "fifo1"
+#define FIFO2 "fifo2"
+
+int main() {
+    char sentence[100];
+    int fd1, fd2;
+
+    // Create the FIFOs if they don't exist
+    mkfifo(FIFO1, 0666);
+    mkfifo(FIFO2, 0666);
+
+    // Open FIFOs for read and write operations
+    fd1 = open(FIFO1, O_RDONLY);
+    fd2 = open(FIFO2, O_WRONLY);
+
+    // Read from FIFO
+    read(fd1, sentence, sizeof(sentence));
+    printf("Sentence received from Process 1: %s", sentence);
+
+    // Counting number of characters, words, and lines
+    int char_count = 0, word_count = 0, line_count = 0;
+    for (int i = 0; sentence[i] != '\0'; i++) {
+        if (sentence[i] != ' ' && sentence[i] != '\n') {
+            char_count++;
+        }
+        if (sentence[i] == ' ' || sentence[i] == '\n') {
+            word_count++;
+        }
+        if (sentence[i] == '\n') {
+            line_count++;
+        }
+    }
+    word_count++; // accounting for the last word
+
+    // Writing the output to a file
+    FILE *file = fopen("output.txt", "w");
+    fprintf(file, "Character count: %d\nWord count: %d\nLine count: %d", char_count, word_count, line_count);
+    fclose(file);
+
+    // Reading the file and writing the content to FIFO
+    char fileContent[1000];
+    file = fopen("output.txt", "r");
+    fread(fileContent, 1, 1000, file);
+    fclose(file);
+    write(fd2, fileContent, sizeof(fileContent));
+
+    close(fd1);
+    close(fd2);
+
+    return 0;
+}
+

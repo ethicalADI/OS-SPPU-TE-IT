@@ -1,0 +1,68 @@
+
+address_book_file="address_book.txt"
+
+while true; do
+    clear
+    echo "Address Book Options:"
+    echo "a) Create address book"
+    echo "b) View address book"
+    echo "c) Insert a record"
+    echo "d) Delete a record"
+    echo "e) Modify a record"
+    echo "f) Exit"
+    read -p "Enter your choice (a/b/c/d/e/f): " choice
+
+    case $choice in
+        a)
+            touch $address_book_file
+            echo "Address book created."
+            read -p "Press Enter to continue..."
+            ;;
+        b)
+            if [ -e $address_book_file ]; then
+                cat $address_book_file
+            else
+                echo "Address book does not exist. Please create one first."
+            fi
+            read -p "Press Enter to continue..."
+            ;;
+        c)
+            read -p "Enter Name: " name
+            read -p "Enter Address: " address
+            echo "Name: $name, Address: $address" >> $address_book_file
+            echo "Record inserted."
+            read -p "Press Enter to continue..."
+            ;;
+        d)
+            read -p "Enter Name to delete: " name
+            if [ -e $address_book_file ]; then
+                grep -i -v "$name" $address_book_file > temp.txt
+                mv temp.txt $address_book_file
+                echo "Record deleted."
+            else
+                echo "Address book does not exist."
+            fi
+            read -p "Press Enter to continue..."
+            ;;
+        e)
+            read -p "Enter Name to modify: " name
+            if [ -e $address_book_file ]; then
+                grep -i "$name" $address_book_file
+                read -p "Enter new address: " new_address
+                sed -i "s/$name.*,/$name, $new_address/" $address_book_file
+                echo "Record modified."
+            else
+                echo "Address book does not exist."
+            fi
+            read -p "Press Enter to continue..."
+            ;;
+        f)
+            echo "Exiting address book program."
+            exit 0
+            ;;
+        *)
+            echo "Invalid choice. Please select a valid option."
+            read -p "Press Enter to continue..."
+            ;;
+    esac
+done

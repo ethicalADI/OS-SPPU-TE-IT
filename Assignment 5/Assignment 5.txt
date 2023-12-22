@@ -1,0 +1,100 @@
+#include <stdio.h>
+#include <stdlib.h>
+int main() {
+    int processes, resources, i, j, count = 0;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &processes);
+
+    printf("Enter the number of resources: ");
+    scanf("%d", &resources);
+
+    int max[processes][resources];
+    int allocated[processes][resources];
+    int need[processes][resources];
+    int available[resources];
+    int work[resources];
+    int finish[processes];
+
+    printf("Enter the maximum resources that each process can claim:\n");
+    for (i = 0; i < processes; i++) {
+        printf("For process %d: ", i);
+        for (j = 0; j < resources; j++) {
+            scanf("%d", &max[i][j]);
+        }
+    }
+
+    printf("Enter the resources currently allocated to each process:\n");
+    for (i = 0; i < processes; i++) {
+        printf("For process %d: ", i);
+        for (j = 0; j < resources; j++) {
+            scanf("%d", &allocated[i][j]);
+        }
+    }
+
+    printf("Enter the total available resources: ");
+    for (i = 0; i < resources; i++) {
+        scanf("%d", &available[i]);
+    }
+
+    // Calculate the need matrix
+    for (i = 0; i < processes; i++) {
+        for (j = 0; j < resources; j++) {
+            need[i][j] = max[i][j] - allocated[i][j];
+        }
+    }
+
+    for (i = 0; i < resources; i++) {
+        work[i] = available[i];
+    }
+
+  
+    for (i = 0; i < processes; i++) {
+        finish[i] = 0;
+    }
+
+    int safeSeq[processes];
+    int tempFinish, safeFlag;
+
+    while (count < processes) 
+    {
+        safeFlag = 0;
+        for (i = 0; i < processes; i++) 
+        {if (finish[i] == 0) 
+            {   tempFinish = 1;
+                for (j = 0; j < resources; j++) 
+                {if (need[i][j] > work[j]) 
+                    {  tempFinish = 0;
+                        break;
+                    }
+                }
+
+                if (tempFinish) 
+                {  safeSeq[count] = i;
+                    finish[i] = 1;
+                    safeFlag = 1;
+                    count++;
+
+                    for (j = 0; j < resources; j++) 
+                    {
+                        work[j] += allocated[i][j];
+                    }
+                }
+            }
+        }
+
+        if (!safeFlag) 
+        {
+            printf("The system is in an unsafe state. Deadlock may occur.\n");
+            return 0;
+        }
+    }
+
+    printf("The system is in a safe state. Safe sequence is: ");
+    for (i = 0; i < processes; i++) {
+        printf("%d ", safeSeq[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
